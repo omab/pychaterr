@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "PyChatErr"
+version = "0.0.1"
+authors = [
+  { name="Matías Aguirre", email="matiasaguirre@gmail.com" },
+]
+description = "Python generic error handler powered by ChatGPT"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "openai"
+]
+
+[tool.hatch.build]
+include = [
+  "pychaterr/",
+  "README.md",
+  "LICENSE",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/omab/pychaterr"
+"Bug Tracker" = "https://github.com/omab/pychaterr/issues"
