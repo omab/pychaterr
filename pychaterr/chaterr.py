@@ -6,26 +6,7 @@ import traceback
 import openai
 
 
-# # TODO: remove api key
-# openai.api_key = os.getenv("OPENAPI_API_KEY")
-
-# response = openai.ChatCompletion.create(
-#     model="gpt-3.5-turbo",
-#     messages=[
-#         {
-#             "role": "system",
-#             "content": "You are a chatbot",
-#         },
-#         {
-#             "role": "user",
-#             "content": "Why should DevOps engineer learn kubernetes?",
-#         },
-#     ],
-# )
-
-# result = ""
-# for choice in response.choices:
-#     result += choice.message.content
+openai.api_key = os.getenv("OPENAPI_API_KEY")
 
 
 def chat_exception_hook(type, value, tb):
@@ -39,6 +20,26 @@ def chat_exception_hook(type, value, tb):
     stack_call = "".join(traceback.format_tb(tb))
     code = inspect.getsource(tb)
 
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a chatbot",
+            },
+            {
+                "role": "user",
+                "content": "Explain why this Python exception happens and propose a solution",
+            },
+            {
+                "role": "user",
+                "content": f"{stack_call} {code}",
+            },
+        ],
+    )
+
+    result = [choice.message.content for choice in response.choices]
+    print("".join(result))
 
 
 def setup_handler():
