@@ -1,58 +1,99 @@
 import inspect
 import os
-import re
 import sys
 import traceback
 
 import openai
 from openai import ChatCompletion
+from openai.error import OpenAIError
 
 from rich.console import Console
 from rich.markdown import Markdown
 
 
-
 openai.api_key = os.getenv("OPENAPI_API_KEY")
 
-PYCHATERR_RE = re.compile("^(import pychaterr|from pychaterr import .*)$", re.MULTILINE)
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+OPENAI_PROMPT = os.getenv(
+    "OPENAI_PROMTP",
+    """
+    You are a chatbot, act as an instructor, teaching errors in Python code to beginners.
+    I will give you code and exceptions and you will provide explanations and solutions.
+    Reply in Markdown with Python code blocks.
+    """
+)
+RESULT_MESSAGE = """
+# Code
 
-PROMPT = """
-You are a chatbot, act as an instructor, teaching errors in Python code to beginners.
-I will give you code and exceptions and you will provide explanations and solutions.
-Reply in Markdown with Python code blocks.
+```python
+{code}
+```
+
+# Exception
+
+```python
+{exception}
+```
+
+# Details
+
+{result}
 """
 
 
-def chat_exception_hook(type, value, tb):
+def chat_exception_hook(exc_type, exc_value, exc_traceback):
     """Exception hook.
 
     Args:
-        type (type): Exception type
-        value (Exception): Exception instance
-        tb (Traceback): Traceback object
+        exc_type (type): Exception type
+        exc_value (Exception): Exception instance
+        exc_traceback (Traceback): Traceback object
     """
-    stack_call = "".join(traceback.format_tb(tb))
-    code = PYCHATERR_RE.sub("", inspect.getsource(tb))
+    stack_call = "".join(traceback.format_tb(exc_traceback))
+    source_code = inspect.getsource(exc_traceback)
 
-    response = ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "system",
-                "content": PROMPT,
-            },
-            {
-                "role": "user",
-                "content": f"{stack_call} {code}",
-            },
-        ],
-    )
+    code_found = False
+    lines = []
+    for line in source_code.split("\n"):
+        if line == "import pychaterr" or line.startswith("from pychaterr"):
+            continue
+        code_found = code_found or bool(line.strip())
+        if not code_found and line.strip() == "":
+            continue
+        lines.append(line)
 
-    result = [choice.message.content for choice in response.choices]
+    code = "\n".join(lines)
 
-    console = Console()
-    content = Markdown("".join(result))
-    console.print(content)
+    try:
+        response = ChatCompletion.create(
+            model=OPENAI_MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": OPENAI_PROMPT,
+                },
+                {
+                    "role": "user",
+                    "content": stack_call + " " + code,
+                },
+            ],
+        )
+    except OpenAIError as error:
+        print("OpenAI API error: \"{error}\"".format(error=error))
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+    else:
+        Console().print(
+            Markdown(
+                RESULT_MESSAGE.format(
+                    code=code,
+                    exception=stack_call,
+                    result="".join([
+                        choice.message.content
+                        for choice in response.choices
+                    ])
+                )
+            )
+        )
 
 
 def setup_handler():
