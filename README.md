@@ -18,7 +18,15 @@ pip install pychaterr
 
 # Usage
 
-Simply importing the module into your code will define the exception handler:
+This module requires a OpenAI API Key:
+
+1. Generate a key at https://platform.openai.com/account/api-keys
+2. Export it with:
+   ```
+   export OPENAPI_API_KEY=sk-...
+   ```
+
+Then import the module in your code with:
 
 ```python
 import pychaterr
