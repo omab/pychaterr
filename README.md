@@ -34,7 +34,7 @@ import pychaterr
 
 # Examples
 
-The [examples/] folder contains examples showing this module behavior.
+The [examples/](examples/) folder contains examples showing this module behavior.
 
 Run the samples with:
 
@@ -46,4 +46,4 @@ python examples/zerodivision.py
 
 # License
 
-See [LICENSE] file for details.
+See [LICENSE](LICENSE) file for details.
