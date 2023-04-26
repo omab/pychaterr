@@ -32,6 +32,10 @@ Then import the module in your code with:
 import pychaterr
 ```
 
+# Demo
+
+[![asciicast](https://asciinema.org/a/as6OC8KH0Oe6w78Yw10TexmsV.svg)](https://asciinema.org/a/as6OC8KH0Oe6w78Yw10TexmsV)
+
 # Examples
 
 The [examples/](examples/) folder contains examples showing this module behavior.
