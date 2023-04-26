@@ -32,12 +32,20 @@ RESULT_MESSAGE = """
 # Exception
 
 ```python
-{exception}
+{exception_stack}
+{exception_type}: {exception}
 ```
 
 # Details
 
 {result}
+"""
+
+PROMPT_INPUT = """
+{code}
+
+{exception_stack}
+{exception_type}: {exception}
 """
 
 
@@ -74,8 +82,13 @@ def chat_exception_hook(exc_type, exc_value, exc_traceback):
                 },
                 {
                     "role": "user",
-                    "content": stack_call + " " + code,
-                },
+                    "content": PROMPT_INPUT.format(
+                        code=code,
+                        exception_stack=stack_call,
+                        exception_type=exc_type.__name__,
+                        exception=exc_value,
+                    )
+                }
             ],
         )
     except OpenAIError as error:
@@ -86,7 +99,9 @@ def chat_exception_hook(exc_type, exc_value, exc_traceback):
             Markdown(
                 RESULT_MESSAGE.format(
                     code=code,
-                    exception=stack_call,
+                    exception_stack=stack_call,
+                    exception_type=exc_type.__name__,
+                    exception=exc_value,
                     result="".join([
                         choice.message.content
                         for choice in response.choices
