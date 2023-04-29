@@ -32,6 +32,10 @@ Then import the module in your code with:
 import pychaterr
 ```
 
+## Disabling
+
+Define `PYCHATERR_DISABLED=yes` environment var to disable this library.
+
 # Demo
 
 [![asciicast](https://asciinema.org/a/as6OC8KH0Oe6w78Yw10TexmsV.svg)](https://asciinema.org/a/as6OC8KH0Oe6w78Yw10TexmsV)

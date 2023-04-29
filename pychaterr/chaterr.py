@@ -113,5 +113,6 @@ def chat_exception_hook(exc_type, exc_value, exc_traceback):
 
 def setup_handler():
     """Setup general exception handler and enable ChatGTP error processing."""
-    if sys.excepthook != chat_exception_hook:
-        sys.excepthook = chat_exception_hook
+    if not os.getenv("PYCHATERR_DISABLED") == "yes":
+        if sys.excepthook != chat_exception_hook:
+            sys.excepthook = chat_exception_hook
